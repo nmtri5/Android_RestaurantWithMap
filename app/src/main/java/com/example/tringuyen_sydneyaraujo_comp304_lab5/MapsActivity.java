@@ -9,6 +9,10 @@ import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -22,9 +26,8 @@ import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    private static final CharSequence[] MAP_TYPE_ITEMS =
-            {"Road Map", "Satellite"};
     private GoogleMap mMap;
+    Spinner maptype;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,8 +39,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
         Intent intent = getIntent();
 
-        String yourString  =intent.getStringExtra("value");
-        TextView textView= findViewById(R.id.testv);
+        String yourString = intent.getStringExtra("value");
+        TextView textView = findViewById(R.id.testv);
+        maptype = findViewById(R.id.maptype);
+        android.widget.ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.maptype, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        maptype.setAdapter(adapter);
+        maptype.setSelection(0);
         textView.setText(yourString);
     }
 
@@ -56,25 +65,40 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
         Intent intent = getIntent();
 
-        String yourString  =intent.getStringExtra("value");
-        String stringname  =intent.getStringExtra("name1");
+        String yourString = intent.getStringExtra("value");
+        String stringname = intent.getStringExtra("name1");
 
         // Add a marker in Sydney and move the camera
         LatLng address = getLocationFromAddress(this, yourString);
+        while (address == null) {
+            address = getLocationFromAddress(this, yourString);
+        }
         mMap.addMarker(new MarkerOptions().position(address).title(stringname));
-      //  mMap.moveCamera(CameraUpdateFactory.newLatLng(address));
+        //  mMap.moveCamera(CameraUpdateFactory.newLatLng(address));
         float zoomLevel = 18.0f; //This goes up to 21
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(address, zoomLevel));
-        showMapTypeSelectorDialog();
+        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        maptype.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                switch (i) {
+                    case 0:
+                        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                        break;
+                    case 1:
+                        mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                        break;
+                }
+            }
+        });
     }
-    public LatLng getLocationFromAddress(Context context, String strAddress)
-    {
-        Geocoder coder= new Geocoder(context);
+
+    public LatLng getLocationFromAddress(Context context, String strAddress) {
+        Geocoder coder = new Geocoder(context);
         List<Address> address;
         LatLng p1 = null;
 
-        try
-        {
+        try {
             address = coder.getFromLocationName(strAddress, 5);
             if(address==null)
             {
@@ -85,49 +109,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             location.getLongitude();
 
             p1 = new LatLng(location.getLatitude(), location.getLongitude());
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return p1;
 
-    }
-
-    private void showMapTypeSelectorDialog() {
-        // Prepare the dialog by setting up a Builder.
-        final String fDialogTitle = "Select Map Type";
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(fDialogTitle);
-
-        // Find the current map type to pre-check the item representing the current state.
-        int checkItem = mMap.getMapType() - 1;
-
-        // Add an OnClickListener to the dialog, so that the selection will be handled.
-        builder.setSingleChoiceItems(
-                MAP_TYPE_ITEMS,
-                checkItem,
-                new DialogInterface.OnClickListener() {
-
-                    public void onClick(DialogInterface dialog, int item) {
-                        // Locally create a finalised object.
-
-                        // Perform an action depending on which item was selected.
-                        switch (item) {
-                            case 1:
-                                mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-                                break;
-                            default:
-                                mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                        }
-                        dialog.dismiss();
-                    }
-                }
-        );
-
-        // Build the dialog and show it.
-        AlertDialog fMapTypeDialog = builder.create();
-        fMapTypeDialog.setCanceledOnTouchOutside(true);
-        fMapTypeDialog.show();
     }
 }

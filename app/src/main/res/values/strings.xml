@@ -9,6 +9,11 @@
         <item>Spanish</item>
     </string-array>
 
+    <string-array name="maptype">
+        <item>Street Map</item>
+        <item>Satellite</item>
+    </string-array>
+
     <string name="google_map_key">AIzaSyDLBUjnJHO4IS6CdV0CMAaBqHXG3Qd8k8w</string>
     <string name="title_activity_maps">Map</string>
 </resources>
