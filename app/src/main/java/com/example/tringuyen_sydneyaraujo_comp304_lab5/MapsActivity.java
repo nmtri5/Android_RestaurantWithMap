@@ -78,9 +78,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         float zoomLevel = 18.0f; //This goes up to 21
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(address, zoomLevel));
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        maptype.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        maptype.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 switch (i) {
                     case 0:
                         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
@@ -89,6 +89,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
                         break;
                 }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
             }
         });
     }
